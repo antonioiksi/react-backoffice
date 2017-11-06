@@ -20,7 +20,7 @@ import {BackofficeRoute} from './components/layouts/BackofficeRoute'
 
 ReactDOM.render(
     <BrowserRouter>
-        <div>
+        <div className="container-fluid">
             <ul>
                 <li><Link to="/">Welcome</Link></li>
                 <li><Link to="/login">Login</Link></li>

@@ -94,8 +94,6 @@ class SearchForm extends React.Component {
                     }
                     </tbody>
                 </Table>
-                );
-
                 <Button  bsStyle="primary" bsSize="large" onClick={() => this.handleSearch()}>Search</Button>
             </div>
         )
