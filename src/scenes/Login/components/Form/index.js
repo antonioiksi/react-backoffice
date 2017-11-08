@@ -20,7 +20,7 @@ class LoginForm extends React.Component {
 
     render() {
 
-        if(this.state.isLoggedIn) return (<Redirect to="/dashboard"/>);
+        if(this.state.isLoggedIn) return (<Redirect to="/dashboard/"/>);
 
         return (
 

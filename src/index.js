@@ -17,20 +17,21 @@ import Search from './scenes/Search'
 import {EmptyRoute} from './components/layouts/EmptyRoute'
 import {BackofficeRoute} from './components/layouts/BackofficeRoute'
 
+//TODO add loading and keepeng auth token, don't forget abandon free access in DajngoServer
 
 ReactDOM.render(
     <BrowserRouter>
         <div className="container-fluid">
             <ul>
                 <li><Link to="/">Welcome</Link></li>
-                <li><Link to="/login">Login</Link></li>
+                <li><Link to="/login/">Login</Link></li>
             </ul>
             <hr/>
             <Switch>
                 <Route exact path="/" component={Welcome}/>
-                <EmptyRoute exact path="/login" component={Login}/>
-                <BackofficeRoute exact path="/dashboard" component={Dashboard}/>
-                <BackofficeRoute exact path="/search" component={Search}/>
+                <EmptyRoute exact path="/login/" component={Login}/>
+                <BackofficeRoute exact path="/dashboard/" component={Dashboard}/>
+                <BackofficeRoute exact path="/search/" component={Search}/>
                 <Route render={()=>(<Redirect to="/"/>)}/>
             </Switch>
         </div>

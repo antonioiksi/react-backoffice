@@ -2,6 +2,10 @@ import React from 'react';
 import {Button, FormGroup, ControlLabel, FormControl, HelpBlock} from "react-bootstrap";
 import PropTypes from 'prop-types';
 
+import {validate, Validator} from 'jsonschema';
+import Schema from './schema.json';
+import Test from './test.json';
+
 function FieldGroup({ id, label, help, ...props }) {
 
         return (
@@ -24,13 +28,34 @@ class SearchFileUpload extends React.Component {
     }
 
     displayData(content) {
-        this.setState({data: content});
+        //var data = require('./test.json');
+        //alert(JSON.stringify(Test));
+
+        //console.log(validate(4, {"type": "number"}));
+
+        var v = new Validator();
+        var instance = 4;
+        var schema = {"type": "number"};
+        console.log(v.validate(Test, Schema));
+
+        /*
+        fetch('./test.json',{
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        )
+            .then((res) => {console.log(res); return res.json()})
+            .then((data) => {
+                //console.log('data:', data);
+                //this.setState({data: data});
+            })
+        */
+        //this.setState({data: data});
+
+
+
         this.props.loadQuery(JSON.parse(content));
-    }
-
-
-    handleSearch(event) {
-        this.props.search();
     }
 
 
@@ -64,7 +89,7 @@ class SearchFileUpload extends React.Component {
                 />
                 { data && <p> {data} </p> }
 
-                <Button  bsStyle="primary" bsSize="large" onClick={() => this.handleSearch()}>Search</Button>
+
             </div>
         )
     }
@@ -72,6 +97,5 @@ class SearchFileUpload extends React.Component {
 
 SearchFileUpload.PropTypes = {
     loadQuery: PropTypes.func.isRequired,
-    search: PropTypes.func.isRequired,
 };
 export default SearchFileUpload;

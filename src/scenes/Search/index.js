@@ -1,10 +1,22 @@
 import React, {Component} from 'react'
+import axios from 'axios';
+import ReactJson from 'react-json-view'
+
+
 import SearchForm from "./components/SearchForm";
 import SearchResult from "./components/SearchResult";
-import SearchFileUpload from "./components/SearchFileUpload/index";
-import {ButtonToolbar, ToggleButton, ToggleButtonGroup} from "react-bootstrap";
+import SearchFileUpload from "./components/SearchFileUpload";
+import {Panel, ButtonToolbar, ToggleButton, ToggleButtonGroup, Button} from "react-bootstrap";
 
-const initQueryValues = [{name:'phone',value:'43523452'},{name:'firstname', value:'Petrov'}];
+import {multifield_search_match, attributes, ES_URL} from "../../services/business_model_f";
+import SearchFormList from "./components/SearchFormList";
+
+const initQueryValues = [
+    {
+        "speaker":"king",
+        "play_name":"Henry"
+    }
+]
 
 
 const SEARCH_TYPES = {FORM:'form',FILE:'file'};
@@ -13,27 +25,32 @@ class Search extends Component {
     constructor(props) {
         super(props);
         this.state={
-            searchType:SEARCH_TYPES.FILE,
-            query:initQueryValues,
+            error:'',
+            attrTypes:[],
+            searchType:SEARCH_TYPES.FORM,
+            multiQuery:initQueryValues,
             result:[]
         };
 
         this.addValue = this.addValue.bind(this);
         this.removeValue = this.removeValue.bind(this);
         this.loadQuery = this.loadQuery.bind(this);
-        this.search = this.search.bind(this);
+    }
+
+    componentDidMount() {
+        attributes(this);
     }
 
     loadQuery(query) {
         this.setState({
-            query:query
+            multiQuery:query
         });
     }
 
     addValue(name,value) {
 
         this.setState({
-            query: [...this.state.query, {name:name, value: value}]
+            multiQuery: [...this.state.multiQuery, {name:name, value: value}]
         });
     }
 
@@ -41,22 +58,70 @@ class Search extends Component {
     removeValue(removeId) {
         //console.log(removeId);
         this.setState({
-            query: this.state.query.filter((_,i) => i !== removeId)
+            multiQuery: this.state.multiQuery.filter((_,i) => i !== removeId)
         });
     }
 
-    search() {
+    handleSearch() {
+        //const that = this;
+        let jsonQuery = this.state.multiQuery;
+        //this.setState({
+        //    result: this.state.query.slice(0),
+        //});
+        multifield_search_match(this, jsonQuery);
+    }
+
+    loadFormsValues(formsValues) {
+        let newMultiQuery = [];
+        formsValues.forEach(
+            function(formValues) {
+                let query={};
+                formValues.forEach(
+                    function (val) {
+                        query[val.name] = val.value;
+                    }
+                );
+                newMultiQuery.push(query);
+            }
+
+        );
+        //console.log(newMultiQuery);
+
         this.setState({
-            result: this.state.query.slice(0),
+            multiQuery:newMultiQuery
         });
-
+        //const that = this;
+        //let jsonQuery = this.state.multiQuery;
+        //this.setState({
+        //    result: this.state.query.slice(0),
+        //});
+        //multifield_search_match(this, jsonQuery);
     }
-
 
     render() {
+        const formsValues = [];
+        this.state.multiQuery.forEach(
+            function (query) {
+                const values = [];
+                Object.keys(query).forEach(
+                    function(key) {
+                        const value = {"name":key, "value":query[key]};
+                        values.push(value);
+                    }
+                );
+                formsValues.push(values);
+            }
+        );
+        console.log(formsValues);
+
+
         return (
             <div>
                 <h1>Search</h1>
+                {this.state.error!==''?(
+                    <Panel header="Ошибка" bsStyle="danger">
+                        {this.state.error}
+                    </Panel>):('')}
 
                 <ButtonToolbar>
                     <ToggleButtonGroup type="radio" name="options" defaultValue={this.state.searchType}>
@@ -66,18 +131,24 @@ class Search extends Component {
                 </ButtonToolbar>
                 {
                     this.state.searchType === SEARCH_TYPES.FORM ? (
-                        <SearchForm addValue={this.addValue}
-                                    removeValue={this.removeValue}
-                                    queryValues={this.state.query}
-                                    search={this.search}
+
+                        <SearchFormList attrTypes={this.state.attrTypes}
+                                        formsValuesProp={formsValues}
+                                        loadFormsValues={this.loadFormsValues.bind(this)}
                         />
+
                     ) : (
                         <SearchFileUpload loadQuery={this.loadQuery}
-                                          search={this.search}
+
                         />
                     )
                 }
-                <SearchResult jsonData={this.state.result}/>
+
+                <Panel header="Запрос" bsStyle="success">
+                    <ReactJson src={this.state.multiQuery} />
+                </Panel>
+                <Button  bsStyle="primary" bsSize="large" onClick={() => this.handleSearch()}>Search</Button>
+                <SearchResult jsonQuery={this.state.multiQuery} jsonData={this.state.result}/>
             </div>
         )
     }

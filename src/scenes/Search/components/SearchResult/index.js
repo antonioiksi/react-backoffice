@@ -1,19 +1,17 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import ReactJson from 'react-json-view'
+import {Panel} from "react-bootstrap";
 
 class SearchResult extends React.Component {
-
-    constructor(props) {
-        super(props);
-
-    }
 
     render() {
         return (
             <div>
                 <h1>Search Result</h1>
-                <ReactJson src={this.props.jsonData} />
+                        <Panel header="Результат" bsStyle="info">
+                            <ReactJson src={this.props.jsonData} />
+                        </Panel>
             </div>
         )
     }

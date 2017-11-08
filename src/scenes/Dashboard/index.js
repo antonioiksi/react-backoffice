@@ -1,5 +1,7 @@
 import React, {Component} from 'react'
 
+//TODO add some cool charts
+
 class Dashboard extends Component {
     render() {
         return (

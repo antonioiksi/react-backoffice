@@ -1,9 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {Form, FormGroup, FormControl, ControlLabel, Button, Table} from 'react-bootstrap';
+import {Form, FormGroup, FormControl, ControlLabel, Button, Table, Panel} from 'react-bootstrap';
 
 
-const AttrTypes = [{name:'phone',title:'Телефон'},{name:'firstname', title:'Имя'}];
+//const AttrTypes = [{name:'phone',title:'Телефон'},{name:'firstname', title:'Имя'}];
 
 
 class SearchForm extends React.Component {
@@ -11,12 +11,13 @@ class SearchForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            error:'',
             form: {
                 selectValue:'',
                 textValue:''
-            }
+            },
+            values:this.props.valuesProp
         }
-
     }
 
     handleChange(event) {
@@ -26,26 +27,38 @@ class SearchForm extends React.Component {
             ()=>(console.log(this.state.form.textValue)));
     }
 
+    handleRemoveForm() {
+        this.props.removeForm(this.props.index);
+    }
 
-    handleAdd(event) {
+    handleAddFormValue(event) {
         event.preventDefault();
-        //alert('add');
-        this.props.addValue(this.state.form.selectValue, this.state.form.textValue);
+        this.setState({
+                values:[...this.state.values,{name:this.state.form.selectValue,value:this.state.form.textValue}]
+            },() => {this.props.changeFormValues(this.props.index, this.state.values)}
+        );
     }
 
-    handleRemove(i) {
-        this.props.removeValue(i);
+    handleRemoveFormValue(removeId) {
+        this.setState({
+                values: this.state.values.filter((_,i) => i !== removeId)
+            },
+            () => {this.props.changeFormValues(this.props.index, this.state.values)}
+        );
     }
 
-    handleSearch(event) {
-        this.props.search();
-    }
 
     render() {
-        const queryValues = this.props.queryValues;
+        const values = this.state.values;
+        const AttrTypes = this.props.attrTypes;
         return (
             <div>
-                <h1>Search Form</h1>
+                <h1>Search Form {this.props.index}</h1>
+                <Button  bsStyle="danger" onClick={() => this.handleRemoveForm()}>Remove form</Button>
+                {this.state.error!==''?(
+                    <Panel header="Ошибка" bsStyle="danger">
+                        {this.state.error}
+                    </Panel>):('')}
                 <Form horizontal>
                     <FormGroup controlId="formControlsSelect">
                         <ControlLabel>Attribute Name</ControlLabel>
@@ -63,7 +76,7 @@ class SearchForm extends React.Component {
                         <FormControl type="text" placeholder="Value" name="textValue" onChange={this.handleChange.bind(this)}/>
                     </FormGroup>
                     <FormGroup>
-                        <Button type="submit" name="HiSearch" onClick={this.handleAdd.bind(this)}>
+                        <Button type="submit" name="HiSearch" onClick={this.handleAddFormValue.bind(this)}>
                             Add
                         </Button>
                     </FormGroup>
@@ -81,20 +94,20 @@ class SearchForm extends React.Component {
                     </thead>
                     <tbody>
                     {
-                        queryValues.map((queryValue, i) =>
+                        values.map((value, i) =>
                             <tr key={i}>
                                 <td>{i+1}</td>
-                                <td>{queryValue.name}</td>
-                                <td>{queryValue.value}</td>
+                                <td>{value.name}</td>
+                                <td>{value.value}</td>
                                 <td>
-                                    <Button  bsStyle="danger" onClick={() => this.handleRemove(i)}>Remove</Button>
+                                    <Button  bsStyle="danger" onClick={() => this.handleRemoveFormValue(i)}>Remove</Button>
                                 </td>
                             </tr>
                         )
                     }
                     </tbody>
                 </Table>
-                <Button  bsStyle="primary" bsSize="large" onClick={() => this.handleSearch()}>Search</Button>
+
             </div>
         )
     }
@@ -102,10 +115,11 @@ class SearchForm extends React.Component {
 };
 
 SearchForm.PropTypes = {
-    queryValues: PropTypes.array,
-    addValue : PropTypes.func.isRequired,
-    removeValue: PropTypes.func.isRequired,
-    search: PropTypes.func.isRequired,
+    index: PropTypes.string,
+    attrTypes: PropTypes.array,
+    removeForm: PropTypes.func,
+    valuesProp: PropTypes.array,
+    changeFormValues: PropTypes.func,
 };
 
 export default SearchForm;
