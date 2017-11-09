@@ -1,14 +1,11 @@
 import React, {Component} from 'react'
-import axios from 'axios';
 import ReactJson from 'react-json-view'
 
-
-import SearchForm from "./components/SearchForm";
 import SearchResult from "./components/SearchResult";
 import SearchFileUpload from "./components/SearchFileUpload";
 import {Panel, ButtonToolbar, ToggleButton, ToggleButtonGroup, Button} from "react-bootstrap";
 
-import {multifield_search_match, attributes, ES_URL} from "../../services/business_model_f";
+import {multifield_search_match, attributes} from "../../services/business_model_f";
 import SearchFormList from "./components/SearchFormList";
 
 const initQueryValues = [
@@ -25,6 +22,7 @@ class Search extends Component {
     constructor(props) {
         super(props);
         this.state={
+            loading:false,
             error:'',
             attrTypes:[],
             searchType:SEARCH_TYPES.FORM,
@@ -63,12 +61,16 @@ class Search extends Component {
     }
 
     handleSearch() {
+        //event.preventDefault();
         //const that = this;
         let jsonQuery = this.state.multiQuery;
         //this.setState({
         //    result: this.state.query.slice(0),
         //});
-        multifield_search_match(this, jsonQuery);
+        this.setState({loading: true},() => {
+            multifield_search_match(this, jsonQuery);
+        });
+
     }
 
     loadFormsValues(formsValues) {
@@ -148,7 +150,7 @@ class Search extends Component {
                     <ReactJson src={this.state.multiQuery} />
                 </Panel>
                 <Button  bsStyle="primary" bsSize="large" onClick={() => this.handleSearch()}>Search</Button>
-                <SearchResult jsonQuery={this.state.multiQuery} jsonData={this.state.result}/>
+                <SearchResult jsonQuery={this.state.multiQuery} jsonData={this.state.result} loading={this.state.loading}/>
             </div>
         )
     }

@@ -1,7 +1,8 @@
-import React from 'react'
 import axios from 'axios';
+import {validToken} from "../../components/auth";
 
 const BUSINESS_SERVER_URL = 'http://localhost:8000';
+
 
 
 export function attributes( sender)
@@ -17,9 +18,17 @@ export function attributes( sender)
 
 export function multifield_search_match( sender, jsonQuery)
 {
-    axios.post(BUSINESS_SERVER_URL+'/api/business/multifield-search-match/', jsonQuery)
+
+
+    let config = {
+        headers: {
+            'Authorization': 'Bearer ' + validToken()
+        }
+    }
+
+    axios.post(BUSINESS_SERVER_URL+'/api/business/multifield-search-match/', jsonQuery, config)
         .then(({data}) => {
-            sender.setState({result: data});
+            sender.setState({result: data, loading:false});
         })
         .catch( ( err ) => {
             sender.setState({error: err.message});
